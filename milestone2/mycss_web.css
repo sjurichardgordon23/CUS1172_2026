@@ -4,6 +4,10 @@ body{
 
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 p{
     color:rgba(120,101,84);
 }
