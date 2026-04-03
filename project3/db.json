@@ -1,0 +1,107 @@
+{
+  "burgers": [
+    {
+      "id": "classic-beef",
+      "title": "Classic Beef Burger",
+      "steps": [
+        {
+          "id": "bun",
+          "type": "multiple-choice",
+          "instruction": "Choose your bun type",
+          "options": ["Sesame", "Brioche", "Lettuce Wrap"],
+          "feedback": null
+        },
+        {
+          "id": "protein",
+          "type": "multiple-choice",
+          "instruction": "Choose your protein",
+          "options": ["Beef Patty", "Double Beef", "Plant-Based"],
+          "feedback": null
+        },
+        {
+          "id": "toppings",
+          "type": "multiple-choice",
+          "instruction": "Select your toppings",
+          "options": ["Lettuce & Tomato", "Pickles & Onions", "All Veggies", "No Toppings"],
+          "feedback": {
+            "condition": "toppings === 'No Toppings'",
+            "message": "Burgers taste better with fresh veggies! Want to add some?"
+          }
+        },
+        {
+          "id": "sauce",
+          "type": "text",
+          "instruction": "How many sauce servings would you like? (1-5)",
+          "feedback": {
+            "condition": "sauce > 3",
+            "message": "That's a lot of sauce! It might get messy!"
+          }
+        },
+        {
+          "id": "presentation",
+          "type": "image-selection",
+          "instruction": "Choose your burger presentation style",
+          "imageOptions": [
+            { "value": "Classic Wrap", "label": "Classic Paper Wrap", "isIdeal": true },
+            { "value": "Fancy Box", "label": "Premium Box", "isIdeal": false },
+            { "value": "Open Tray", "label": "Dine-in Tray", "isIdeal": true }
+          ],
+          "feedback": {
+            "condition": "presentation === 'Fancy Box'",
+            "message": "Fancy box costs extra $2. Still want it?"
+          }
+        }
+      ]
+    },
+    {
+      "id": "grilled-chicken",
+      "title": "Grilled Chicken Burger",
+      "steps": [
+        {
+          "id": "bun",
+          "type": "multiple-choice",
+          "instruction": "Choose your bun type",
+          "options": ["Whole Wheat", "Brioche", "Lettuce Wrap"],
+          "feedback": null
+        },
+        {
+          "id": "protein",
+          "type": "multiple-choice",
+          "instruction": "Choose your chicken style",
+          "options": ["Grilled Chicken", "Crispy Chicken", "Double Chicken"],
+          "feedback": null
+        },
+        {
+          "id": "toppings",
+          "type": "multiple-choice",
+          "instruction": "Select your toppings",
+          "options": ["Avocado & Spinach", "Roasted Peppers", "Classic Veggies", "No Toppings"],
+          "feedback": {
+            "condition": "toppings === 'No Toppings'",
+            "message": "Toppings add great flavor and nutrition!"
+          }
+        },
+        {
+          "id": "sauce",
+          "type": "text",
+          "instruction": "How many sauce servings? (1-5)",
+          "feedback": {
+            "condition": "sauce < 1",
+            "message": "Minimum 1 sauce serving required!"
+          }
+        },
+        {
+          "id": "presentation",
+          "type": "image-selection",
+          "instruction": "Choose presentation",
+          "imageOptions": [
+            { "value": "Classic Wrap", "label": "Classic Wrap", "isIdeal": true },
+            { "value": "Fancy Box", "label": "Premium Box", "isIdeal": false },
+            { "value": "Eco Box", "label": "Eco-Friendly Box", "isIdeal": true }
+          ],
+          "feedback": null
+        }
+      ]
+    }
+  ]
+}
