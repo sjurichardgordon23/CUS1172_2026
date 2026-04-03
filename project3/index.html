@@ -204,7 +204,7 @@
 <body>
 
 <div class="container">
-    <h1>👑 King Burger Order Kiosk 👑</h1>
+    <h1>King Burger Order Kiosk</h1>
     
     <div id="app"></div>
 </div>
@@ -220,7 +220,7 @@
 
 <script id="burger-selection-template" type="text/x-handlebars-template">
     <div class="order-summary">
-        <h3>📋 Order Summary</h3>
+        <h3>Order Summary</h3>
         <p><strong>Name:</strong> {{userName}}</p>
         {{#each selections}}
         <p><strong>{{this.step}}:</strong> {{this.value}}</p>
@@ -239,7 +239,7 @@
 
 <script id="customization-template" type="text/x-handlebars-template">
     <div class="order-summary">
-        <h3>📋 Order Summary</h3>
+        <h3>Order Summary</h3>
         <p><strong>Name:</strong> {{userName}}</p>
         <p><strong>Burger:</strong> {{burgerTitle}}</p>
         {{#each selectedItems}}
@@ -286,7 +286,7 @@
 
 <script id="final-template" type="text/x-handlebars-template">
     <div class="order-summary">
-        <h3>📋 Final Order Summary</h3>
+        <h3>Final Order Summary</h3>
         <p><strong>Name:</strong> {{userName}}</p>
         <p><strong>Burger:</strong> {{burgerTitle}}</p>
         {{#each selectedItems}}
@@ -296,9 +296,9 @@
 
     <div class="final-message">
         {{#if completedAllSteps}}
-        🎉 Thank you, {{userName}}! Your burger is on the grill! 🎉
+        Thank you, {{userName}}! Your burger is on the grill!
         {{else}}
-        😅 Oops, {{userName}}! You skipped a few steps. Want to try again?
+        Oops, {{userName}}! You skipped a few steps. Want to try again?
         {{/if}}
     </div>
 
