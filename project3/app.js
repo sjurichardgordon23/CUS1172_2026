@@ -1,23 +1,135 @@
+// ========== API Configuration ==========
+// IMPORTANT: Replace with your actual JSONPlaceholder URL
+const API_URL = 'https://my-json-server.typicode.com/sjurichardgordon23/CUS1172_2026';
+
 // ========== MODEL ==========
 class Model {
     constructor() {
-        this.apiUrl = 'https://my-json-server.typicode.com/sjurichardgordon23/CUS1172_2026';
         this.state = {
-            userName: null,
-            selectedBurger: null,
-            burgerTitle: null,
+            userName: '',
+            burgerId: '',
+            burgerTitle: '',
             currentStepIndex: 0,
-            selections: [],
+            selectedItems: [],
             steps: [],
             waitingForFeedback: false,
             pendingSelection: null,
-            confirmationMessage: null
+            pendingStep: null,
+            confirmationMessage: ''
         };
     }
 
     async fetchBurgers() {
-        const response = await fetch(`${this.apiUrl}/burgers`);
-        return await response.json();
+        // Replace with actual API call
+        // const response = await fetch(`${API_URL}/burgers`);
+        // return await response.json();
+        
+        // Temporary mock data for testing
+        return [
+            {
+                "id": "classic-beef",
+                "title": "Classic Beef Burger",
+                "steps": [
+                    {
+                        "id": "bun",
+                        "type": "multiple-choice",
+                        "instruction": "Choose your bun",
+                        "options": ["Sesame", "Brioche", "Lettuce Wrap"],
+                        "feedback": null
+                    },
+                    {
+                        "id": "protein",
+                        "type": "multiple-choice",
+                        "instruction": "Choose your protein",
+                        "options": ["Beef Patty", "Double Beef", "Plant-Based"],
+                        "feedback": null
+                    },
+                    {
+                        "id": "toppings",
+                        "type": "multiple-choice",
+                        "instruction": "Select your toppings",
+                        "options": ["Lettuce & Tomato", "Pickles & Onions", "All Veggies", "No Toppings"],
+                        "feedback": {
+                            "condition": "toppings === 'No Toppings'",
+                            "message": "Burgers taste better with fresh veggies! Want to add some?"
+                        }
+                    },
+                    {
+                        "id": "sauce",
+                        "type": "text",
+                        "instruction": "How many sauce servings? (1-5)",
+                        "feedback": {
+                            "condition": "sauce > 3",
+                            "message": "Too much sauce might overpower the flavor!"
+                        }
+                    },
+                    {
+                        "id": "presentation",
+                        "type": "image-selection",
+                        "instruction": "Choose your burger presentation",
+                        "imageOptions": [
+                            { "value": "Classic Wrap", "label": "Classic Paper Wrap" },
+                            { "value": "Fancy Box", "label": "Premium Box" },
+                            { "value": "Open Tray", "label": "Dine-in Tray" }
+                        ],
+                        "feedback": {
+                            "condition": "presentation === 'Fancy Box'",
+                            "message": "Fancy box costs extra $2. Still want it?"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "grilled-chicken",
+                "title": "Grilled Chicken Burger",
+                "steps": [
+                    {
+                        "id": "bun",
+                        "type": "multiple-choice",
+                        "instruction": "Choose your bun",
+                        "options": ["Whole Wheat", "Brioche", "Lettuce Wrap"],
+                        "feedback": null
+                    },
+                    {
+                        "id": "protein",
+                        "type": "multiple-choice",
+                        "instruction": "Choose your chicken style",
+                        "options": ["Grilled Chicken", "Crispy Chicken", "Double Chicken"],
+                        "feedback": null
+                    },
+                    {
+                        "id": "toppings",
+                        "type": "multiple-choice",
+                        "instruction": "Select your toppings",
+                        "options": ["Avocado & Spinach", "Roasted Peppers", "Classic Veggies", "No Toppings"],
+                        "feedback": {
+                            "condition": "toppings === 'No Toppings'",
+                            "message": "Toppings add great flavor and nutrition!"
+                        }
+                    },
+                    {
+                        "id": "sauce",
+                        "type": "text",
+                        "instruction": "How many sauce servings? (1-5)",
+                        "feedback": {
+                            "condition": "sauce < 1",
+                            "message": "Minimum 1 sauce serving required!"
+                        }
+                    },
+                    {
+                        "id": "presentation",
+                        "type": "image-selection",
+                        "instruction": "Choose your burger presentation",
+                        "imageOptions": [
+                            { "value": "Classic Wrap", "label": "Classic Paper Wrap" },
+                            { "value": "Fancy Box", "label": "Premium Box" },
+                            { "value": "Eco Box", "label": "Eco-Friendly Box" }
+                        ],
+                        "feedback": null
+                    }
+                ]
+            }
+        ];
     }
 
     async fetchBurgerSteps(burgerId) {
@@ -30,17 +142,18 @@ class Model {
         this.state.userName = name;
     }
 
-    setBurger(burgerId, burgerTitle, steps) {
-        this.state.selectedBurger = burgerId;
+    async setBurger(burgerId, burgerTitle) {
+        this.state.burgerId = burgerId;
         this.state.burgerTitle = burgerTitle;
-        this.state.steps = steps;
+        this.state.steps = await this.fetchBurgerSteps(burgerId);
         this.state.currentStepIndex = 0;
-        this.state.selections = [];
+        this.state.selectedItems = [];
+        this.state.waitingForFeedback = false;
     }
 
-    addSelection(stepId, instruction, value) {
-        this.state.selections.push({
-            step: instruction,
+    addSelection(stepInstruction, value) {
+        this.state.selectedItems.push({
+            step: stepInstruction,
             value: value
         });
         this.state.currentStepIndex++;
@@ -53,55 +166,49 @@ class Model {
         return null;
     }
 
-    getStepIndex() {
-        return this.state.currentStepIndex;
+    isComplete() {
+        return this.state.currentStepIndex >= this.state.steps.length;
     }
 
-    getTotalSteps() {
-        return this.state.steps.length;
+    completedAllSteps() {
+        return this.state.selectedItems.length === this.state.steps.length;
     }
 
     setWaitingForFeedback(selection, step) {
         this.state.waitingForFeedback = true;
-        this.state.pendingSelection = { selection, step };
+        this.state.pendingSelection = selection;
+        this.state.pendingStep = step;
     }
 
     clearFeedback() {
         this.state.waitingForFeedback = false;
-        const pending = this.state.pendingSelection;
-        if (pending) {
-            this.addSelection(pending.step.id, pending.step.instruction, pending.selection);
+        if (this.state.pendingSelection && this.state.pendingStep) {
+            this.addSelection(this.state.pendingStep.instruction, this.state.pendingSelection);
             this.state.pendingSelection = null;
+            this.state.pendingStep = null;
         }
     }
 
     showConfirmation(message) {
         this.state.confirmationMessage = message;
         setTimeout(() => {
-            this.state.confirmationMessage = null;
+            this.state.confirmationMessage = '';
             if (this.onUpdate) this.onUpdate();
         }, 1000);
     }
 
-    isComplete() {
-        return this.state.currentStepIndex >= this.state.steps.length;
-    }
-
-    completedAllSteps() {
-        return this.state.selections.length === this.state.steps.length;
-    }
-
     reset() {
         this.state = {
-            userName: null,
-            selectedBurger: null,
-            burgerTitle: null,
+            userName: '',
+            burgerId: '',
+            burgerTitle: '',
             currentStepIndex: 0,
-            selections: [],
+            selectedItems: [],
             steps: [],
             waitingForFeedback: false,
             pendingSelection: null,
-            confirmationMessage: null
+            pendingStep: null,
+            confirmationMessage: ''
         };
     }
 
@@ -124,7 +231,7 @@ class View {
     compileTemplates() {
         this.templates.welcome = Handlebars.compile(document.getElementById('welcome-template').innerHTML);
         this.templates.burgerSelect = Handlebars.compile(document.getElementById('burger-selection-template').innerHTML);
-        this.templates.step = Handlebars.compile(document.getElementById('step-template').innerHTML);
+        this.templates.customization = Handlebars.compile(document.getElementById('customization-template').innerHTML);
         this.templates.final = Handlebars.compile(document.getElementById('final-template').innerHTML);
     }
 
@@ -141,32 +248,36 @@ class View {
         document.getElementById('app').innerHTML = html;
     }
 
-    renderStep(state, step, confirmationMessage, showFeedback, feedbackMessage) {
+    renderStep(state, currentStep, showFeedback, feedbackMessage) {
         const templateData = {
             userName: state.userName,
             burgerTitle: state.burgerTitle,
-            selections: state.selections,
-            instruction: step.instruction,
-            isMultipleChoice: step.type === 'multiple-choice',
-            isTextInput: step.type === 'text',
-            isImageSelection: step.type === 'image-selection',
-            options: step.options,
-            imageOptions: step.imageOptions,
-            confirmationMessage: confirmationMessage,
-            showFeedback: showFeedback,
+            selectedItems: state.selectedItems,
+            currentStep: currentStep,
+            isMultipleChoice: currentStep.type === 'multiple-choice',
+            isText: currentStep.type === 'text',
+            isImageSelection: currentStep.type === 'image-selection',
+            confirmationMessage: state.confirmationMessage,
+            showFeedback: showFeedback || state.waitingForFeedback,
             feedbackMessage: feedbackMessage
         };
-        document.getElementById('app').innerHTML = this.templates.step(templateData);
+        
+        const html = this.templates.customization(templateData);
+        document.getElementById('app').innerHTML = html;
     }
 
     renderFinal(state) {
         const html = this.templates.final({
             userName: state.userName,
             burgerTitle: state.burgerTitle,
-            selections: state.selections,
-            completedAllSteps: state.selections.length === state.steps.length
+            selectedItems: state.selectedItems,
+            completedAllSteps: this.completedAllSteps(state)
         });
         document.getElementById('app').innerHTML = html;
+    }
+
+    completedAllSteps(state) {
+        return state.selectedItems.length === state.steps.length;
     }
 }
 
@@ -184,7 +295,7 @@ class Controller {
     }
 
     async submitName() {
-        const nameInput = document.getElementById('userName');
+        const nameInput = document.getElementById('nameInput');
         const userName = nameInput.value.trim();
         
         if (!userName) {
@@ -199,15 +310,14 @@ class Controller {
     async showBurgerSelection() {
         const burgers = await this.model.fetchBurgers();
         this.view.renderBurgerSelection(
-            this.model.state.userName,
+            this.model.getState().userName,
             burgers,
-            this.model.state.selections
+            this.model.getState().selectedItems
         );
     }
 
     async selectBurger(burgerId, burgerTitle) {
-        const steps = await this.model.fetchBurgerSteps(burgerId);
-        this.model.setBurger(burgerId, burgerTitle, steps);
+        await this.model.setBurger(burgerId, burgerTitle);
         this.updateView();
     }
 
@@ -216,25 +326,24 @@ class Controller {
         
         // Check for feedback conditions
         if (currentStep.feedback) {
-            const condition = currentStep.feedback.condition;
             let shouldShowFeedback = false;
+            let feedbackMessage = '';
             
-            if (condition.includes('toppings') && value === 'No Toppings') {
+            if (currentStep.feedback.condition.includes('toppings') && value === 'No Toppings') {
                 shouldShowFeedback = true;
-            } else if (condition.includes('presentation') && value === 'Fancy Box') {
-                shouldShowFeedback = true;
+                feedbackMessage = currentStep.feedback.message;
             }
             
             if (shouldShowFeedback) {
                 this.model.setWaitingForFeedback(value, currentStep);
-                this.updateView(true, currentStep.feedback.message);
+                this.updateView(true, feedbackMessage);
                 return;
             }
         }
         
         // Add selection and show confirmation
-        this.model.addSelection(currentStep.id, currentStep.instruction, value);
-        this.model.showConfirmation('✅ Great choice!');
+        this.model.addSelection(currentStep.instruction, value);
+        this.model.showConfirmation('Great choice!');
         
         // Check if complete
         if (this.model.isComplete()) {
@@ -243,29 +352,32 @@ class Controller {
     }
 
     async submitText() {
-        const textInput = document.getElementById('textValue');
+        const textInput = document.getElementById('textInput');
         let value = textInput.value;
         const currentStep = this.model.getCurrentStep();
         
-        // Validate sauce amount
-        if (currentStep.id === 'sauce') {
-            const numValue = parseInt(value);
-            if (isNaN(numValue) || numValue < 1 || numValue > 5) {
-                alert('Please enter a number between 1 and 5!');
-                return;
-            }
-            value = `${numValue} servings`;
-            
-            // Check feedback for sauce
-            if (currentStep.feedback && numValue > 3) {
-                this.model.setWaitingForFeedback(value, currentStep);
-                this.updateView(true, currentStep.feedback.message);
-                return;
-            }
+        if (!value || value < 1 || value > 5) {
+            alert('Please enter a number between 1 and 5!');
+            return;
         }
         
-        this.model.addSelection(currentStep.id, currentStep.instruction, value);
-        this.model.showConfirmation('✨ Extra tasty!');
+        value = `${value} serving(s)`;
+        
+        // Check feedback for sauce amount
+        if (currentStep.feedback && currentStep.feedback.condition.includes('sauce > 3') && parseInt(textInput.value) > 3) {
+            this.model.setWaitingForFeedback(value, currentStep);
+            this.updateView(true, currentStep.feedback.message);
+            return;
+        }
+        
+        if (currentStep.feedback && currentStep.feedback.condition.includes('sauce < 1') && parseInt(textInput.value) < 1) {
+            this.model.setWaitingForFeedback(value, currentStep);
+            this.updateView(true, currentStep.feedback.message);
+            return;
+        }
+        
+        this.model.addSelection(currentStep.instruction, value);
+        this.model.showConfirmation('Extra tasty!');
         
         if (this.model.isComplete()) {
             this.updateView();
@@ -276,14 +388,14 @@ class Controller {
         const currentStep = this.model.getCurrentStep();
         
         // Check feedback for fancy box
-        if (currentStep.feedback && value === 'Fancy Box') {
+        if (currentStep.feedback && currentStep.feedback.condition.includes('presentation') && value === 'Fancy Box') {
             this.model.setWaitingForFeedback(label, currentStep);
             this.updateView(true, currentStep.feedback.message);
             return;
         }
         
-        this.model.addSelection(currentStep.id, currentStep.instruction, label);
-        this.model.showConfirmation('🎨 Nice pick!');
+        this.model.addSelection(currentStep.instruction, label);
+        this.model.showConfirmation('Nice pick!');
         
         if (this.model.isComplete()) {
             this.updateView();
@@ -292,14 +404,14 @@ class Controller {
 
     dismissFeedback() {
         this.model.clearFeedback();
-        this.model.showConfirmation('👍 Got it! Moving on...');
+        this.model.showConfirmation('Got it! Moving on...');
         this.updateView();
     }
 
     updateView(showFeedback = false, feedbackMessage = '') {
         const state = this.model.getState();
         
-        if (!state.selectedBurger) {
+        if (!state.burgerId) {
             return;
         }
         
@@ -310,17 +422,11 @@ class Controller {
         
         const currentStep = this.model.getCurrentStep();
         if (currentStep) {
-            this.view.renderStep(
-                state,
-                currentStep,
-                state.confirmationMessage,
-                showFeedback || state.waitingForFeedback,
-                feedbackMessage || (state.waitingForFeedback ? 'This combination might not be ideal!' : '')
-            );
+            this.view.renderStep(state, currentStep, showFeedback, feedbackMessage);
         }
     }
 
-    restart() {
+    restartOrder() {
         this.model.reset();
         this.init();
     }
