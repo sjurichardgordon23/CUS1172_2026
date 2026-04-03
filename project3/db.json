@@ -7,7 +7,7 @@
         {
           "id": "bun",
           "type": "multiple-choice",
-          "instruction": "Choose your bun type",
+          "instruction": "Choose your bun",
           "options": ["Sesame", "Brioche", "Lettuce Wrap"],
           "feedback": null
         },
@@ -31,20 +31,20 @@
         {
           "id": "sauce",
           "type": "text",
-          "instruction": "How many sauce servings would you like? (1-5)",
+          "instruction": "How many sauce servings? (1-5)",
           "feedback": {
             "condition": "sauce > 3",
-            "message": "That's a lot of sauce! It might get messy!"
+            "message": "Too much sauce might overpower the flavor!"
           }
         },
         {
           "id": "presentation",
           "type": "image-selection",
-          "instruction": "Choose your burger presentation style",
+          "instruction": "Choose your burger presentation",
           "imageOptions": [
-            { "value": "Classic Wrap", "label": "Classic Paper Wrap", "isIdeal": true },
-            { "value": "Fancy Box", "label": "Premium Box", "isIdeal": false },
-            { "value": "Open Tray", "label": "Dine-in Tray", "isIdeal": true }
+            { "value": "Classic Wrap", "label": "Classic Paper Wrap" },
+            { "value": "Fancy Box", "label": "Premium Box" },
+            { "value": "Open Tray", "label": "Dine-in Tray" }
           ],
           "feedback": {
             "condition": "presentation === 'Fancy Box'",
@@ -60,7 +60,7 @@
         {
           "id": "bun",
           "type": "multiple-choice",
-          "instruction": "Choose your bun type",
+          "instruction": "Choose your bun",
           "options": ["Whole Wheat", "Brioche", "Lettuce Wrap"],
           "feedback": null
         },
@@ -93,11 +93,11 @@
         {
           "id": "presentation",
           "type": "image-selection",
-          "instruction": "Choose presentation",
+          "instruction": "Choose your burger presentation",
           "imageOptions": [
-            { "value": "Classic Wrap", "label": "Classic Wrap", "isIdeal": true },
-            { "value": "Fancy Box", "label": "Premium Box", "isIdeal": false },
-            { "value": "Eco Box", "label": "Eco-Friendly Box", "isIdeal": true }
+            { "value": "Classic Wrap", "label": "Classic Paper Wrap" },
+            { "value": "Fancy Box", "label": "Premium Box" },
+            { "value": "Eco Box", "label": "Eco-Friendly Box" }
           ],
           "feedback": null
         }
