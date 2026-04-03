@@ -1,5 +1,4 @@
-// ========== API Configuration ==========
-// IMPORTANT: Replace with your actual JSONPlaceholder URL
+
 const API_URL = 'https://my-json-server.typicode.com/sjurichardgordon23/CUS1172_2026';
 
 // ========== MODEL ==========
@@ -20,11 +19,7 @@ class Model {
     }
 
     async fetchBurgers() {
-        // Replace with actual API call
-        // const response = await fetch(`${API_URL}/burgers`);
-        // return await response.json();
-        
-        // Temporary mock data for testing
+
         return [
             {
                 "id": "classic-beef",
@@ -221,7 +216,7 @@ class Model {
     }
 }
 
-// ========== VIEW ==========
+
 class View {
     constructor() {
         this.templates = {};
@@ -281,7 +276,6 @@ class View {
     }
 }
 
-// ========== CONTROLLER ==========
 class Controller {
     constructor(model, view) {
         this.model = model;
@@ -324,7 +318,6 @@ class Controller {
     async makeSelection(value) {
         const currentStep = this.model.getCurrentStep();
         
-        // Check for feedback conditions
         if (currentStep.feedback) {
             let shouldShowFeedback = false;
             let feedbackMessage = '';
@@ -341,11 +334,9 @@ class Controller {
             }
         }
         
-        // Add selection and show confirmation
         this.model.addSelection(currentStep.instruction, value);
         this.model.showConfirmation('Great choice!');
         
-        // Check if complete
         if (this.model.isComplete()) {
             this.updateView();
         }
@@ -363,7 +354,6 @@ class Controller {
         
         value = `${value} serving(s)`;
         
-        // Check feedback for sauce amount
         if (currentStep.feedback && currentStep.feedback.condition.includes('sauce > 3') && parseInt(textInput.value) > 3) {
             this.model.setWaitingForFeedback(value, currentStep);
             this.updateView(true, currentStep.feedback.message);
@@ -387,7 +377,6 @@ class Controller {
     async selectImage(value, label) {
         const currentStep = this.model.getCurrentStep();
         
-        // Check feedback for fancy box
         if (currentStep.feedback && currentStep.feedback.condition.includes('presentation') && value === 'Fancy Box') {
             this.model.setWaitingForFeedback(label, currentStep);
             this.updateView(true, currentStep.feedback.message);
@@ -437,7 +426,6 @@ class Controller {
     }
 }
 
-// Initialize the application
 const model = new Model();
 const view = new View();
 const controller = new Controller(model, view);
