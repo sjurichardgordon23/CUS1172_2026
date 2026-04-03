@@ -1,7 +1,5 @@
-
 const API_URL = 'https://my-json-server.typicode.com/sjurichardgordon23/CUS1172_2026';
 
-// ========== MODEL ==========
 class Model {
     constructor() {
         this.state = {
@@ -19,7 +17,6 @@ class Model {
     }
 
     async fetchBurgers() {
-
         return [
             {
                 "id": "classic-beef",
@@ -216,7 +213,6 @@ class Model {
     }
 }
 
-
 class View {
     constructor() {
         this.templates = {};
@@ -317,7 +313,7 @@ class Controller {
 
     async makeSelection(value) {
         const currentStep = this.model.getCurrentStep();
-        
+
         if (currentStep.feedback) {
             let shouldShowFeedback = false;
             let feedbackMessage = '';
@@ -333,10 +329,10 @@ class Controller {
                 return;
             }
         }
-        
+
         this.model.addSelection(currentStep.instruction, value);
         this.model.showConfirmation('Great choice!');
-        
+
         if (this.model.isComplete()) {
             this.updateView();
         }
@@ -353,7 +349,7 @@ class Controller {
         }
         
         value = `${value} serving(s)`;
-        
+
         if (currentStep.feedback && currentStep.feedback.condition.includes('sauce > 3') && parseInt(textInput.value) > 3) {
             this.model.setWaitingForFeedback(value, currentStep);
             this.updateView(true, currentStep.feedback.message);
@@ -376,7 +372,7 @@ class Controller {
 
     async selectImage(value, label) {
         const currentStep = this.model.getCurrentStep();
-        
+
         if (currentStep.feedback && currentStep.feedback.condition.includes('presentation') && value === 'Fancy Box') {
             this.model.setWaitingForFeedback(label, currentStep);
             this.updateView(true, currentStep.feedback.message);
@@ -426,6 +422,7 @@ class Controller {
     }
 }
 
+// Initialize the application
 const model = new Model();
 const view = new View();
 const controller = new Controller(model, view);
