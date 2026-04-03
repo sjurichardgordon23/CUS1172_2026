@@ -1,7 +1,7 @@
 // ========== MODEL ==========
 class Model {
     constructor() {
-        this.apiUrl = 'https://my-json-server.typicode.com/YOUR_USERNAME/YOUR_REPO_NAME';
+        this.apiUrl = 'https://my-json-server.typicode.com/sjurichardgordon23/CUS1172_2026';
         this.state = {
             userName: null,
             selectedBurger: null,
