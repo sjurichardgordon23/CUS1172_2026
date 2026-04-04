@@ -1,4 +1,4 @@
-const API_URL = 'https://my-json-server.typicode.com/sjurichardgordon23/CUS1172_2026';
+const API_URL = 'https://my-json-server.typicode.com/sjurichardgordon23/burger-api';
 
 class Model {
     constructor() {
@@ -16,113 +16,18 @@ class Model {
         };
     }
 
-    async fetchBurgers() {
-        return [
-            {
-                "id": "classic-beef",
-                "title": "Classic Beef Burger",
-                "steps": [
-                    {
-                        "id": "bun",
-                        "type": "multiple-choice",
-                        "instruction": "Choose your bun",
-                        "options": ["Sesame", "Brioche", "Lettuce Wrap"],
-                        "feedback": null
-                    },
-                    {
-                        "id": "protein",
-                        "type": "multiple-choice",
-                        "instruction": "Choose your protein",
-                        "options": ["Beef Patty", "Double Beef", "Plant-Based"],
-                        "feedback": null
-                    },
-                    {
-                        "id": "toppings",
-                        "type": "multiple-choice",
-                        "instruction": "Select your toppings",
-                        "options": ["Lettuce & Tomato", "Pickles & Onions", "All Veggies", "No Toppings"],
-                        "feedback": {
-                            "condition": "toppings === 'No Toppings'",
-                            "message": "Burgers taste better with fresh veggies! Want to add some?"
-                        }
-                    },
-                    {
-                        "id": "sauce",
-                        "type": "text",
-                        "instruction": "How many sauce servings? (1-5)",
-                        "feedback": {
-                            "condition": "sauce > 3",
-                            "message": "Too much sauce might overpower the flavor!"
-                        }
-                    },
-                    {
-                        "id": "presentation",
-                        "type": "image-selection",
-                        "instruction": "Choose your burger presentation",
-                        "imageOptions": [
-                            { "value": "Classic Wrap", "label": "Classic Paper Wrap" },
-                            { "value": "Fancy Box", "label": "Premium Box" },
-                            { "value": "Open Tray", "label": "Dine-in Tray" }
-                        ],
-                        "feedback": {
-                            "condition": "presentation === 'Fancy Box'",
-                            "message": "Fancy box costs extra $2. Still want it?"
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "grilled-chicken",
-                "title": "Grilled Chicken Burger",
-                "steps": [
-                    {
-                        "id": "bun",
-                        "type": "multiple-choice",
-                        "instruction": "Choose your bun",
-                        "options": ["Whole Wheat", "Brioche", "Lettuce Wrap"],
-                        "feedback": null
-                    },
-                    {
-                        "id": "protein",
-                        "type": "multiple-choice",
-                        "instruction": "Choose your chicken style",
-                        "options": ["Grilled Chicken", "Crispy Chicken", "Double Chicken"],
-                        "feedback": null
-                    },
-                    {
-                        "id": "toppings",
-                        "type": "multiple-choice",
-                        "instruction": "Select your toppings",
-                        "options": ["Avocado & Spinach", "Roasted Peppers", "Classic Veggies", "No Toppings"],
-                        "feedback": {
-                            "condition": "toppings === 'No Toppings'",
-                            "message": "Toppings add great flavor and nutrition!"
-                        }
-                    },
-                    {
-                        "id": "sauce",
-                        "type": "text",
-                        "instruction": "How many sauce servings? (1-5)",
-                        "feedback": {
-                            "condition": "sauce < 1",
-                            "message": "Minimum 1 sauce serving required!"
-                        }
-                    },
-                    {
-                        "id": "presentation",
-                        "type": "image-selection",
-                        "instruction": "Choose your burger presentation",
-                        "imageOptions": [
-                            { "value": "Classic Wrap", "label": "Classic Paper Wrap" },
-                            { "value": "Fancy Box", "label": "Premium Box" },
-                            { "value": "Eco Box", "label": "Eco-Friendly Box" }
-                        ],
-                        "feedback": null
-                    }
-                ]
-            }
-        ];
+async fetchBurgers() {
+    try {
+        const response = await fetch(`${API_URL}/burgers`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch burgers');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching from API:', error);
+        return this.getMockBurgers();
     }
+}
 
     async fetchBurgerSteps(burgerId) {
         const burgers = await this.fetchBurgers();
