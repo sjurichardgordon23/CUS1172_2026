@@ -16,18 +16,126 @@ class Model {
         };
     }
 
-async fetchBurgers() {
-    try {
-        const response = await fetch(`${API_URL}/burgers`);
-        if (!response.ok) {
-            throw new Error('Failed to fetch burgers');
+    async fetchBurgers() {
+        try {
+            const response = await fetch(`${API_URL}/burgers`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch burgers');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching from API:', error);
+            return this.getMockBurgers();
         }
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching from API:', error);
-        return this.getMockBurgers();
     }
-}
+
+    getMockBurgers() {
+        return [
+            {
+                "id": "classic-beef",
+                "title": "Classic Beef Burger",
+                "steps": [
+                    {
+                        "id": "bun",
+                        "type": "multiple-choice",
+                        "instruction": "Choose your bun",
+                        "options": ["Sesame", "Brioche", "Lettuce Wrap"],
+                        "feedback": null
+                    },
+                    {
+                        "id": "protein",
+                        "type": "multiple-choice",
+                        "instruction": "Choose your protein",
+                        "options": ["Beef Patty", "Double Beef", "Plant-Based"],
+                        "feedback": null
+                    },
+                    {
+                        "id": "toppings",
+                        "type": "multiple-choice",
+                        "instruction": "Select your toppings",
+                        "options": ["Lettuce & Tomato", "Pickles & Onions", "All Veggies", "No Toppings"],
+                        "feedback": {
+                            "condition": "toppings === 'No Toppings'",
+                            "message": "Burgers taste better with fresh veggies! Want to add some?"
+                        }
+                    },
+                    {
+                        "id": "sauce",
+                        "type": "text",
+                        "instruction": "How many sauce servings? (1-5)",
+                        "feedback": {
+                            "condition": "sauce > 3",
+                            "message": "Too much sauce might overpower the flavor!"
+                        }
+                    },
+                    {
+                        "id": "presentation",
+                        "type": "image-selection",
+                        "instruction": "Choose your burger presentation",
+                        "imageOptions": [
+                            { "value": "Classic Wrap", "label": "Classic Paper Wrap" },
+                            { "value": "Fancy Box", "label": "Premium Box" },
+                            { "value": "Open Tray", "label": "Dine-in Tray" }
+                        ],
+                        "feedback": {
+                            "condition": "presentation === 'Fancy Box'",
+                            "message": "Fancy box costs extra $2. Still want it?"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "grilled-chicken",
+                "title": "Grilled Chicken Burger",
+                "steps": [
+                    {
+                        "id": "bun",
+                        "type": "multiple-choice",
+                        "instruction": "Choose your bun",
+                        "options": ["Whole Wheat", "Brioche", "Lettuce Wrap"],
+                        "feedback": null
+                    },
+                    {
+                        "id": "protein",
+                        "type": "multiple-choice",
+                        "instruction": "Choose your chicken style",
+                        "options": ["Grilled Chicken", "Crispy Chicken", "Double Chicken"],
+                        "feedback": null
+                    },
+                    {
+                        "id": "toppings",
+                        "type": "multiple-choice",
+                        "instruction": "Select your toppings",
+                        "options": ["Avocado & Spinach", "Roasted Peppers", "Classic Veggies", "No Toppings"],
+                        "feedback": {
+                            "condition": "toppings === 'No Toppings'",
+                            "message": "Toppings add great flavor and nutrition!"
+                        }
+                    },
+                    {
+                        "id": "sauce",
+                        "type": "text",
+                        "instruction": "How many sauce servings? (1-5)",
+                        "feedback": {
+                            "condition": "sauce < 1",
+                            "message": "Minimum 1 sauce serving required!"
+                        }
+                    },
+                    {
+                        "id": "presentation",
+                        "type": "image-selection",
+                        "instruction": "Choose your burger presentation",
+                        "imageOptions": [
+                            { "value": "Classic Wrap", "label": "Classic Paper Wrap" },
+                            { "value": "Fancy Box", "label": "Premium Box" },
+                            { "value": "Eco Box", "label": "Eco-Friendly Box" }
+                        ],
+                        "feedback": null
+                    }
+                ]
+            }
+        ];
+    }
 
     async fetchBurgerSteps(burgerId) {
         const burgers = await this.fetchBurgers();
@@ -88,6 +196,7 @@ async fetchBurgers() {
 
     showConfirmation(message) {
         this.state.confirmationMessage = message;
+        if (this.onUpdate) this.onUpdate();
         setTimeout(() => {
             this.state.confirmationMessage = '';
             if (this.onUpdate) this.onUpdate();
@@ -218,12 +327,12 @@ class Controller {
 
     async makeSelection(value) {
         const currentStep = this.model.getCurrentStep();
-
+        
         if (currentStep.feedback) {
             let shouldShowFeedback = false;
             let feedbackMessage = '';
             
-            if (currentStep.feedback.condition.includes('toppings') && value === 'No Toppings') {
+            if (currentStep.feedback.condition && currentStep.feedback.condition.includes('toppings') && value === 'No Toppings') {
                 shouldShowFeedback = true;
                 feedbackMessage = currentStep.feedback.message;
             }
@@ -234,11 +343,15 @@ class Controller {
                 return;
             }
         }
-
+        
         this.model.addSelection(currentStep.instruction, value);
         this.model.showConfirmation('Great choice!');
-
-        if (this.model.isComplete()) {
+        
+        if (!this.model.isComplete()) {
+            setTimeout(() => {
+                this.updateView();
+            }, 1000);
+        } else {
             this.updateView();
         }
     }
@@ -254,14 +367,14 @@ class Controller {
         }
         
         value = `${value} serving(s)`;
-
-        if (currentStep.feedback && currentStep.feedback.condition.includes('sauce > 3') && parseInt(textInput.value) > 3) {
+        
+        if (currentStep.feedback && currentStep.feedback.condition && currentStep.feedback.condition.includes('sauce > 3') && parseInt(textInput.value) > 3) {
             this.model.setWaitingForFeedback(value, currentStep);
             this.updateView(true, currentStep.feedback.message);
             return;
         }
         
-        if (currentStep.feedback && currentStep.feedback.condition.includes('sauce < 1') && parseInt(textInput.value) < 1) {
+        if (currentStep.feedback && currentStep.feedback.condition && currentStep.feedback.condition.includes('sauce < 1') && parseInt(textInput.value) < 1) {
             this.model.setWaitingForFeedback(value, currentStep);
             this.updateView(true, currentStep.feedback.message);
             return;
@@ -270,15 +383,19 @@ class Controller {
         this.model.addSelection(currentStep.instruction, value);
         this.model.showConfirmation('Extra tasty!');
         
-        if (this.model.isComplete()) {
+        if (!this.model.isComplete()) {
+            setTimeout(() => {
+                this.updateView();
+            }, 1000);
+        } else {
             this.updateView();
         }
     }
 
     async selectImage(value, label) {
         const currentStep = this.model.getCurrentStep();
-
-        if (currentStep.feedback && currentStep.feedback.condition.includes('presentation') && value === 'Fancy Box') {
+        
+        if (currentStep.feedback && currentStep.feedback.condition && currentStep.feedback.condition.includes('presentation') && value === 'Fancy Box') {
             this.model.setWaitingForFeedback(label, currentStep);
             this.updateView(true, currentStep.feedback.message);
             return;
@@ -287,7 +404,11 @@ class Controller {
         this.model.addSelection(currentStep.instruction, label);
         this.model.showConfirmation('Nice pick!');
         
-        if (this.model.isComplete()) {
+        if (!this.model.isComplete()) {
+            setTimeout(() => {
+                this.updateView();
+            }, 1000);
+        } else {
             this.updateView();
         }
     }
@@ -295,7 +416,9 @@ class Controller {
     dismissFeedback() {
         this.model.clearFeedback();
         this.model.showConfirmation('Got it! Moving on...');
-        this.updateView();
+        setTimeout(() => {
+            this.updateView();
+        }, 1000);
     }
 
     updateView(showFeedback = false, feedbackMessage = '') {
@@ -327,7 +450,6 @@ class Controller {
     }
 }
 
-// Initialize the application
 const model = new Model();
 const view = new View();
 const controller = new Controller(model, view);
